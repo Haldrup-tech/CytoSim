@@ -7,6 +7,7 @@ from sensor import Sensor
 from slider import Slider
 
 pygame.init()
+pygame.display.set_caption("CytoSim")
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -37,22 +38,24 @@ current2_data = []
 
 
 plt.ion()
-fig, (ax, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+fig, (ax, ax2) = plt.subplots(2, 1, figsize=(5, 5))
 line, = ax.plot([], [], 'r-')
 line2, = ax.plot([], [], 'g-')
 line3, = ax2.plot([], [], 'b-')
 line4, = ax2.plot([], [], 'g-')
 ax.set_xlim(0, 900)
 ax.set_ylim(-0.01, y_lim)
-ax.set_xlabel('Time (s)')
-ax.set_ylabel('Volume')
-ax.set_title('Volume/time')
+ax.set_xlabel('Time (s)', fontsize = 6)
+ax.set_ylabel('Volume', fontsize = 6)
+ax.set_title('Volume/time', fontsize = 8)
 
 ax2.set_xlim(0, 900)
 ax2.set_ylim(-1 * y_lim2, y_lim2)
-ax2.set_xlabel('Time (s)')
-ax2.set_ylabel('Current')
-ax2.set_title('Current/time')
+ax2.set_xlabel('Time (s)', fontsize = 6)
+ax2.set_ylabel('Current', fontsize = 6)
+ax2.set_title('Current/time', fontsize = 8)
+
+plt.subplots_adjust(hspace=0.4)
 
 slider1 = Slider(20, 20, 100, 20, 20, SENSOR_DISTANCE / 2, 80)
 slider2 = Slider(20, 50, 100, 20, .1, 10, 1)
@@ -63,6 +66,14 @@ while run:
 
   timeScale = slider2.value
   sensor.inputVoltage(slider3.value, -1 * slider3.value)
+  
+  max_points = 1000  
+  if len(time_data) > max_points:
+    time_data.pop(0)
+    volume_data.pop(0)
+    sensor_data.pop(0)
+    current1_data.pop(0)
+    current2_data.pop(0)
 
   distance = silica.move(time)
   if distance > SCREEN_WIDTH + (silica.size * 2):
