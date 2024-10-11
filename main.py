@@ -37,7 +37,7 @@ current1_data = []
 current2_data = []
 
 
-plt.ion()
+"""plt.ion()
 fig, (ax, ax2) = plt.subplots(2, 1, figsize=(5, 5))
 line, = ax.plot([], [], 'r-')
 line2, = ax.plot([], [], 'g-')
@@ -56,6 +56,7 @@ ax2.set_ylabel('Current', fontsize = 6)
 ax2.set_title('Current/time', fontsize = 8)
 
 plt.subplots_adjust(hspace=0.4)
+"""
 
 slider1 = Slider(20, 20, 100, 20, 20, SENSOR_DISTANCE / 2, 80)
 slider2 = Slider(20, 50, 100, 20, .1, 10, 1)
@@ -144,18 +145,18 @@ while run:
 
   if (volume > y_lim):
     y_lim = volume + (volume * 1.2)
-    ax.set_ylim(-1000, y_lim)
+    #ax.set_ylim(-1000, y_lim)
   
   if (current1 > y_lim2):
     y_lim2 = current1 + (current1 * 1.2)
-    ax2.set_ylim(-1 * y_lim2, y_lim2)
+    #ax2.set_ylim(-1 * y_lim2, y_lim2)
   
   
 
   time_data.append(time)
   volume_data.append(volume)
 
-  line.set_xdata(time_data)
+  """line.set_xdata(time_data)
   line.set_ydata(volume_data)
   line2.set_xdata(time_data)
   line2.set_ydata(sensor_data)
@@ -169,6 +170,7 @@ while run:
   ax2.autoscale_view()
   plt.draw()
   plt.pause(0.01)
+  """
 
   pygame.display.update()
 
