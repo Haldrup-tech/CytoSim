@@ -6,33 +6,24 @@ class Sensor:
     self.distance = distance
     self.space = space
     self.volume =  width * pow(distance, 2)
+    self.total_width = (4 * width) + space
+    self.total_height = 100 * pow(10, -6) - distance
     
-  def generate(self, screenWidth, screenHeight, screen):
-    self.sensor1_x = (screenWidth / 2) - (self.space / 2) - self.width
-    self.sensor1_y = 0
-    self.sensor1_x_size = self.width
-    self.sensor1_y_size = (screenHeight / 2) - (self.distance / 2)
+  def display(self, screenWidth, screenHeight, screen, scale):
+    center_x = screenWidth / 2
+    center_y = screenHeight / 2
+    scaled_half_x = self.total_width / (2 * scale)
+    scaled_half_y = self.total_height / (2 * scale)
+    self.right_limit = center_x + scaled_half_x
+    self.left_limit = center_x - scaled_half_x
 
-    self.inner1 = self.sensor1_x
-    self.outer1 = self.inner1 + self.width
+    pygame.draw.line(screen, (255,255,255), (center_x - scaled_half_x, center_y - scaled_half_y), (center_x + scaled_half_x, center_y - scaled_half_y), 7)
+    pygame.draw.line(screen, (255,255,255), (center_x + scaled_half_x, center_y - scaled_half_y), (center_x + scaled_half_x, center_y + scaled_half_y), 7)
+    pygame.draw.line(screen, (255,255,255), (center_x + scaled_half_x, center_y + scaled_half_y), (center_x - scaled_half_x, center_y + scaled_half_y), 7)
+    pygame.draw.line(screen, (255,255,255), (center_x - scaled_half_x, center_y + scaled_half_y), (center_x - scaled_half_x, center_y - scaled_half_y), 7)
     
-    sensor1a = pygame.Rect(self.sensor1_x, self.sensor1_y, self.sensor1_x_size, self.sensor1_y_size)
-    sensor1b = pygame.Rect(self.sensor1_x, self.sensor1_y + self.sensor1_y_size + self.distance, self.sensor1_x_size, self.sensor1_y_size)
-    pygame.draw.rect(screen, (0, 0, 255), sensor1a)
-    pygame.draw.rect(screen, (0, 0, 255), sensor1b)
 
-    self.sensor2_x = (screenWidth / 2) + (self.space / 2)
-    self.sensor2_y = 0
-    self.sensor2_x_size = self.width
-    self.sensor2_y_size = (screenHeight / 2) - (self.distance / 2)
-
-    self.inner2 = self.sensor2_x
-    self.outer2 = self.inner2 + self.width
-    
-    sensor2a = pygame.Rect(self.sensor2_x, self.sensor2_y, self.sensor2_x_size, self.sensor2_y_size)
-    sensor2b = pygame.Rect(self.sensor2_x, self.sensor2_y + self.sensor2_y_size + self.distance, self.sensor2_x_size, self.sensor2_y_size)
-    pygame.draw.rect(screen, (0, 0, 255), sensor2a)
-    pygame.draw.rect(screen, (0, 0, 255), sensor2b)
+    return 0 
 
   def testSensor1(self, partCenter, particle):
     if (particle.size >= abs(self.inner1 - (partCenter - particle.size))) and (particle.size >= abs(self.outer1 - (partCenter - particle.size))):

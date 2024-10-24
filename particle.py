@@ -8,8 +8,8 @@ class Particle:
     self.rest = rest
     self.volume = (4/3.0) * math.pi * size * size * size 
 
-  def move(self, time):
-    distance = self.speed * time
+  def move(self, time, scale):
+    distance = (self.speed * time) / scale
     return distance
 
   def partialVol(self, height):
