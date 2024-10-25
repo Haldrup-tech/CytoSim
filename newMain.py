@@ -5,14 +5,21 @@ import math
 from sensor import Sensor
 from particle import Particle
 from slider import Slider
+from graph import Graph
 
 SCREEN_WIDTH = 1352
 SCREEN_HEIGHT = 878
 
 scale = 1 * pow(10, -6)
 unit_scale = -3
+time = 0
+time_scale = .1
 
 sensor = Sensor( 50 * pow(10, -6), 30 * pow(10, -6),  20 * pow(10, -6))
+
+particle = Particle(10 * pow(10, -8), 7 * pow(10, -6), 1, 1)
+
+graph = Graph(4, 10, 0, 10)
 
 pygame.init()
 pygame.display.set_caption("CytoSim")
@@ -45,23 +52,26 @@ while True:
 
   scale_bar_size = abs((x - (x * .1)) - (x - (x * .1)) - (1 * pow(10, unit_scale) / scale))
 
-  print(scale_bar_size)
   if int(scale_bar_size) < 40:
     unit_scale += 1
-  elif int(scale_bar_size) > 100:
+  elif int(scale_bar_size) > 500:
     unit_scale -= 1
 
   scale_bar_end_point = (x - (x * .1)) - (1 * pow(10, unit_scale) / scale)
 
   screen.fill((200,100,5))
 
-  sensor.display(x, y, screen, scale)
+  sensor.display(x, y + (y / graph.ratio), screen, scale)
+  particle.move(time_scale, scale, sensor.left_limit, sensor.right_limit, screen, y + (y / graph.ratio))
+  graph.draw(screen, x, y, time_scale)
 
-  pygame.draw.circle(screen, (150,255,10), (x / 2, y /2), 3 * pow(10, -6) / scale)
+  graph.add_data(time, math.sin(time))
+  # pygame.draw.circle(screen, (150,255,10), (x / 2, y /2), 3 * pow(10, -6) / scale)
 
   pygame.draw.line(screen, (255,255,255), (x - (x * .1), y - (y * .1)), (scale_bar_end_point, y - (y * .1)))
 
-  print(scale)
-  #print((1 *pow(10, -6)) / scale)
+  # print((1 *pow(10, -6)) / scale)
+
+  time += time_scale 
 
   pygame.display.update()
