@@ -1,4 +1,5 @@
 import pygame
+import math
 
 class Sensor:
   def __init__(self, width, distance, space):
@@ -14,8 +15,31 @@ class Sensor:
     center_y = screenHeight / 2
     scaled_half_x = self.total_width / (2 * scale)
     scaled_half_y = self.total_height / (2 * scale)
+    scaled_width = self.width / scale
+    scaled_distance = self.distance / scale
+    scaled_space = self.space / scale
+    self.height = screenHeight
+
+    self.scaled_sensor1_left_limit = center_x - scaled_space - scaled_width 
+    self.scaled_sensor1_right_limit = center_x - scaled_space 
+    self.scaled_sensor2_left_limit = center_x + scaled_space 
+    self.scaled_sensor2_right_limit = center_x + scaled_space + scaled_width 
+
     self.right_limit = center_x + scaled_half_x
     self.left_limit = center_x - scaled_half_x
+
+    sensor1_rect_up = pygame.Rect(center_x - scaled_space - scaled_width, center_y - scaled_half_y, scaled_width, scaled_half_y - (scaled_distance / 2))
+    sensor1_rect_down = pygame.Rect(center_x - scaled_space - scaled_width, center_y + (scaled_distance / 2), scaled_width, scaled_half_y - (scaled_distance / 2))
+    sensor2_rect_up = pygame.Rect(center_x + scaled_space, center_y - scaled_half_y, scaled_width, scaled_half_y - (scaled_distance / 2))
+    sensor2_rect_down = pygame.Rect(center_x + scaled_space, center_y  + (scaled_distance / 2), scaled_width, scaled_half_y - (scaled_distance / 2))
+
+    pygame.draw.rect(screen, (0,200,0), sensor1_rect_up)
+    pygame.draw.rect(screen, (0,200,0), sensor1_rect_down)
+    pygame.draw.rect(screen, (0,200,0), sensor2_rect_up)
+    pygame.draw.rect(screen, (0,200,0), sensor2_rect_down)
+
+    pygame.draw.line(screen, (100,100,50), (center_x - scaled_half_x, center_y - (scaled_distance / 2)), (center_x + scaled_half_x, center_y - (scaled_distance / 2)))
+    pygame.draw.line(screen, (100,100,50), (center_x - scaled_half_x, center_y + (scaled_distance / 2)), (center_x + scaled_half_x, center_y + (scaled_distance / 2)))
 
     pygame.draw.line(screen, (255,255,255), (center_x - scaled_half_x, center_y - scaled_half_y), (center_x + scaled_half_x, center_y - scaled_half_y), 7)
     pygame.draw.line(screen, (255,255,255), (center_x + scaled_half_x, center_y - scaled_half_y), (center_x + scaled_half_x, center_y + scaled_half_y), 7)
@@ -25,21 +49,40 @@ class Sensor:
 
     return 0 
 
-  def testSensor1(self, partCenter, particle):
-    if (particle.size >= abs(self.inner1 - (partCenter - particle.size))) and (particle.size >= abs(self.outer1 - (partCenter - particle.size))):
-      volume = ((particle.volume / 2) - (particle.partialVol(particle.size - ((partCenter - particle.size) - self.inner1)))) + ((particle.volume / 2) - particle.partialVol(particle.size - (self.outer1 - (partCenter - particle.size)))) 
-      return volume
-    elif particle.size >= abs(self.inner1 - (partCenter - particle.size)):
-      volume = particle.partialVol(particle.size - (self.inner1 - (partCenter - particle.size)))
-      return volume
-    elif particle.size >= abs(self.outer1 - (partCenter - particle.size)):
-      volume = particle.volume - particle.partialVol(particle.size - (self.outer1 - (partCenter - particle.size)))
-      return volume
-    elif ((partCenter - particle.size) >= self.inner1 and (partCenter - particle.size) <= self.outer1):
-      volume = particle.volume
-      return volume
+
+  def testSensor1(self, partCenter, particle, scale, screen):
+    particle_right_limit = particle.pixel_distance + (particle.radius / scale)
+    particle_left_limit = particle.pixel_distance - (particle.radius / scale)
+
+    pygame.draw.line(screen, (0,0,0), (particle_left_limit, self.height), (particle_left_limit, 0))
+    pygame.draw.line(screen, (0,100,0), (particle_right_limit, self.height), (particle_right_limit, 0))
+
+    pygame.draw.line(screen, (0,0,0), (self.scaled_sensor1_left_limit, self.height), (self.scaled_sensor1_left_limit, 0))
+    pygame.draw.line(screen, (0,100,0), (self.scaled_sensor1_right_limit, self.height), (self.scaled_sensor1_right_limit, 0))
+
+    if (particle_right_limit >= self.scaled_sensor1_left_limit and particle_left_limit < self.scaled_sensor1_left_limit):
+      if (particle.pixel_distance < self.scaled_sensor1_left_limit):
+        height = particle_right_limit - self.scaled_sensor1_left_limit
+        volume = ((math.pi * height * height) / 3) * ((3 * (particle.radius / scale)) - height)
+      else:
+        height = self.scaled_sensor1_left_limit - particle.pixel_distance
+        volume = ((math.pi * height * height) / 3) * ((3 * (particle.radius / scale)) - height)
+    elif (particle_right_limit <= self.scaled_sensor1_right_limit and particle_left_limit >= self.scaled_sensor1_left_limit):
+      volume = particle.volume / scale
+    elif (particle_right_limit > self.scaled_sensor1_right_limit and particle_left_limit > self.scaled_sensor1_left_limit and particle_left_limit < self.scaled_sensor1_right_limit):
+      if (particle.pixel_distance > self.scaled_sensor1_right_limit):
+        height = particle.pixel_distance - self.scaled_sensor1_right_limit
+        volume = ((math.pi * height * height) / 3) * ((3 * (particle.radius / scale)) - height)
+      else:
+        height = self.scaled_sensor1_right_limit - particle_left_limit
+        volume = ((math.pi * height * height) / 3) * ((3 * (particle.radius / scale)) - height)
     else:
-      return 0
+      volume = 0
+
+
+    return volume * scale
+
+
 
   def testSensor2(self, partCenter, particle):
     if (particle.size >= abs(self.inner2 - (partCenter - particle.size))) and (particle.size >= abs(self.outer2 - (partCenter - particle.size))):
